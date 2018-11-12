@@ -40,7 +40,6 @@ fn event(_: &App, mut model: Model, event: Event) -> Model {
 
             model.field.step(dt);
             model.ui.update(dt);
-
         },
 
         Event::WindowEvent { simple: Some(SimpleWindowEvent::Resized(size)), .. } => {
@@ -64,5 +63,6 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
 
     draw.to_frame(app, &frame).unwrap();
     model.ui.ui.draw_to_frame(app, &frame).unwrap();
+
     frame
 }

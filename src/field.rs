@@ -70,6 +70,11 @@ impl Field {
     }
 
     pub fn step(&mut self, dt: f32) {
+        for p in self.patches.iter_mut() {
+            if *p > 0 {
+                *p -= 1;
+            }
+        }
     }
 
 }
