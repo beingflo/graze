@@ -12,11 +12,12 @@ pub struct Cow {
     pub loc: usize,
     pub score: usize,
     next_move: Option<Move>,
+    pub id: usize,
 }
 
 impl Cow {
-    pub fn new(loc: usize) -> Self {
-        Self { loc: loc, score: 0, next_move: None }
+    pub fn new(loc: usize, id: usize) -> Self {
+        Self { loc: loc, score: 0, next_move: None, id: id }
     }
 
     pub fn compute_move(&mut self) {

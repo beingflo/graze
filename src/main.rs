@@ -1,4 +1,5 @@
 extern crate nannou;
+extern crate rand;
 
 mod field;
 mod cow;

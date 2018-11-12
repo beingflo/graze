@@ -1,6 +1,8 @@
 use nannou::prelude::*;
 use nannou::draw::Draw;
 
+use rand::{thread_rng, Rng};
+
 use cow::Cow;
 use cow::Move;
 
@@ -16,11 +18,13 @@ pub struct Field {
     last_step: f32,
     best: usize,
     step: usize,
+
+    id_gen: usize,
 }
 
 impl Field {
     pub fn new(width: f32, height: f32, size: usize) -> Self {
-        Self { cows: Vec::new(), patches: vec![0; size*size], size: size, width: width, height: height, freeze: false, last_step: 0.0, step: 0, best: 0 }
+        Self { cows: Vec::new(), patches: vec![0; size*size], size: size, width: width, height: height, freeze: false, last_step: 0.0, step: 0, best: 0, id_gen: 0 }
     }
 
     pub fn init(&mut self, n: usize) {
@@ -40,7 +44,8 @@ impl Field {
     }
 
     pub fn add_cow(&mut self, loc: usize) {
-        self.cows.push(Cow::new(loc));
+        self.cows.push(Cow::new(loc, self.id_gen));
+        self.id_gen += 1;
     }
 
     pub fn statistics(&mut self) -> (usize, usize, f32) {
@@ -48,10 +53,10 @@ impl Field {
         let mut best = 0;
         let mut worst = self.cows[0].score;
 
-        for (i, c) in self.cows.iter().enumerate() {
+        for c in self.cows.iter() {
             if c.score > best {
                 best = c.score;
-                self.best = i;
+                self.best = c.id;
             }
             if c.score < worst {
                 worst = c.score;
@@ -83,7 +88,7 @@ impl Field {
             draw.rect().w_h(w, h).x_y(x, y).color(color);
         }
 
-        for (i, c) in self.cows.iter().enumerate() {
+        for c in self.cows.iter() {
             let radius = 5.0;
             let (x,y) = (c.loc % self.size, c.loc / self.size);
 
@@ -91,7 +96,7 @@ impl Field {
             let y = ((y as f32 + 0.5) / self.size as f32) * self.height - 0.5 * self.height;
 
             let mut color = BLACK;
-            if i == self.best {
+            if c.id == self.best {
                 color = WHITE;
             }
 
@@ -121,7 +126,10 @@ impl Field {
         }
 
         // Eat grass
-        for c in &mut self.cows {
+        // Randomize eating if two cows occupy the same spot
+        thread_rng().shuffle(&mut self.cows);
+
+        for c in self.cows.iter_mut() {
             if self.patches[c.loc] == 0 {
                 c.score += 1;
                 self.patches[c.loc] = grass_regen;
