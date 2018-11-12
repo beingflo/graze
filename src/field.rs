@@ -14,11 +14,13 @@ pub struct Field {
 
     freeze: bool,
     last_step: f32,
+    best: usize,
+    step: usize,
 }
 
 impl Field {
     pub fn new(width: f32, height: f32, size: usize) -> Self {
-        Self { cows: Vec::new(), patches: vec![0; size*size], size: size, width: width, height: height, freeze: false, last_step: 0.0 }
+        Self { cows: Vec::new(), patches: vec![0; size*size], size: size, width: width, height: height, freeze: false, last_step: 0.0, step: 0, best: 0 }
     }
 
     pub fn init(&mut self, n: usize) {
@@ -39,6 +41,24 @@ impl Field {
 
     pub fn add_cow(&mut self, loc: usize) {
         self.cows.push(Cow::new(loc));
+    }
+
+    pub fn statistics(&mut self) -> (usize, f32) {
+        let mut sum = 0;
+        let mut best = 0;
+
+        for (i, c) in self.cows.iter().enumerate() {
+            if c.score > best {
+                best = c.score;
+                self.best = i;
+            }
+
+            sum += c.score;
+        }
+
+        let av = sum as f32 / self.cows.len() as f32;
+
+        (best, av)
     }
 
     pub fn draw(&self, draw: &Draw) {
@@ -105,6 +125,12 @@ impl Field {
                 *p -= 1;
             }
         }
+
+        // Print statistics
+        self.step += 1;
+        let (best, av) = self.statistics();
+
+        println!("Step: {}\nBest score: {}\nAverage score: {}\n", self.step, best, av);
     }
 
 }
