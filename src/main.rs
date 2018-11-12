@@ -21,9 +21,8 @@ struct Model {
 
 fn model(app: &App) -> Model {
     let _ = app.new_window().with_title("Graze").build().unwrap();
+    app.main_window().set_inner_size_points(720.0, 720.0);
     let (width, height) = app.main_window().inner_size_points();
-
-    println!("{} {}", width, height);
 
     let ui = app.new_ui().build().unwrap();
     let ui = UserInterface::new(ui);

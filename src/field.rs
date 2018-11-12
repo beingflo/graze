@@ -33,14 +33,17 @@ impl Field {
             let mut color = RED;
             if *patch == 0 {
                 // Recovered
-                color = GREEN;
+                color = DARK_GREEN;
             }
 
             let (x,y) = (idx % self.size, idx / self.size);
-            let x = (x as f32 / self.size as f32) * self.width - 0.5 * self.width;
-            let y = (y as f32 / self.size as f32) * self.height - 0.5 * self.height;
-            draw.rect().w_h(20.0, 20.0).x_y(x, y).color(color);
-            println!("{} {}", x, y);
+            let x = ((x as f32 + 0.5) / self.size as f32) * self.width - 0.5 * self.width;
+            let y = ((y as f32 + 0.5) / self.size as f32) * self.height - 0.5 * self.height;
+
+            let w = (self.width / self.size as f32) * 0.9;
+            let h = (self.height / self.size as f32) * 0.9;
+
+            draw.rect().w_h(w, h).x_y(x, y).color(color);
         }
     }
 
