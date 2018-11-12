@@ -27,7 +27,8 @@ fn model(app: &App) -> Model {
     let ui = app.new_ui().build().unwrap();
     let ui = UserInterface::new(ui);
 
-    let field = Field::new(width, height, 20);
+    let mut field = Field::new(width, height, 20);
+    field.init(10);
 
     Model { field: field, ui: ui }
 }

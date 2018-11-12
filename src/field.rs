@@ -19,6 +19,14 @@ impl Field {
         Self { cows: Vec::new(), patches: vec![0; size*size], size: size, width: width, height: height, freeze: false }
     }
 
+    pub fn init(&mut self, n: usize) {
+        for i in 0..n {
+            let x = random_range(0, self.size);
+            let y = random_range(0, self.size);
+            self.add_cow(x, y);
+        }
+    }
+
     pub fn toggle_freeze(&mut self) {
         self.freeze = !self.freeze;
     }
@@ -26,6 +34,10 @@ impl Field {
     pub fn update_size(&mut self, size: Vector2) {
         self.width = size.x;
         self.height = size.y;
+    }
+
+    pub fn add_cow(&mut self, x: usize, y: usize) {
+        self.cows.push(Cow::new(x,y));
     }
 
     pub fn draw(&self, draw: &Draw) {
@@ -44,6 +56,16 @@ impl Field {
             let h = (self.height / self.size as f32) * 0.9;
 
             draw.rect().w_h(w, h).x_y(x, y).color(color);
+        }
+
+        for c in self.cows.iter() {
+            let radius = 5.0;
+            let (x,y) = c.loc;
+
+            let x = ((x as f32 + 0.5) / self.size as f32) * self.width - 0.5 * self.width;
+            let y = ((y as f32 + 0.5) / self.size as f32) * self.height - 0.5 * self.height;
+
+            draw.ellipse().radius(radius).x_y(x, y).color(BLACK);
         }
     }
 
