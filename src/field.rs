@@ -43,14 +43,18 @@ impl Field {
         self.cows.push(Cow::new(loc));
     }
 
-    pub fn statistics(&mut self) -> (usize, f32) {
+    pub fn statistics(&mut self) -> (usize, usize, f32) {
         let mut sum = 0;
         let mut best = 0;
+        let mut worst = self.cows[0].score;
 
         for (i, c) in self.cows.iter().enumerate() {
             if c.score > best {
                 best = c.score;
                 self.best = i;
+            }
+            if c.score < worst {
+                worst = c.score;
             }
 
             sum += c.score;
@@ -58,7 +62,7 @@ impl Field {
 
         let av = sum as f32 / self.cows.len() as f32;
 
-        (best, av)
+        (best, worst, av)
     }
 
     pub fn draw(&self, draw: &Draw) {
@@ -79,21 +83,26 @@ impl Field {
             draw.rect().w_h(w, h).x_y(x, y).color(color);
         }
 
-        for c in self.cows.iter() {
+        for (i, c) in self.cows.iter().enumerate() {
             let radius = 5.0;
             let (x,y) = (c.loc % self.size, c.loc / self.size);
 
             let x = ((x as f32 + 0.5) / self.size as f32) * self.width - 0.5 * self.width;
             let y = ((y as f32 + 0.5) / self.size as f32) * self.height - 0.5 * self.height;
 
-            draw.ellipse().radius(radius).x_y(x, y).color(BLACK);
+            let mut color = BLACK;
+            if i == self.best {
+                color = WHITE;
+            }
+
+            draw.ellipse().radius(radius).x_y(x, y).color(color);
         }
     }
 
     pub fn step(&mut self, dt: f32) {
-        let step_frequency = 2;
+        let step_frequency = 10;
         let step_interval = 1.0 / step_frequency as f32;
-        let grass_regen = 20;
+        let grass_regen = 50;
 
         self.last_step += dt;
 
@@ -128,9 +137,9 @@ impl Field {
 
         // Print statistics
         self.step += 1;
-        let (best, av) = self.statistics();
+        let (best, worst, av) = self.statistics();
 
-        println!("Step: {}\nBest score: {}\nAverage score: {}\n", self.step, best, av);
+        println!("Step: {}\nBest score: {}\nAverage score: {}\nWorst score: {}\n", self.step, best, av, worst);
     }
 
 }
