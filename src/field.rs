@@ -168,6 +168,10 @@ impl<T: Mover> Field<T> {
         }
         self.last_step = 0.0;
 
+        if self.freeze {
+            return;
+        }
+
         self.step += 1;
 
         self.move_cows();
