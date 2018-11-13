@@ -175,6 +175,10 @@ impl<T: Mover> Field<T> {
         self.recover_grass();
         self.print_statistics();
     }
+
+    pub fn cows(&mut self) -> &mut Vec<T> {
+        &mut self.cows
+    }
 }
 
 fn move_cow<T: Mover>(cow: &mut T, size: usize) {
