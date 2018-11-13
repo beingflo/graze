@@ -1,4 +1,5 @@
 use nannou::prelude::*;
+use rand::Rng;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Move {
@@ -21,12 +22,31 @@ impl Cow {
     }
 
     pub fn compute_move(&mut self, neighborhood: ([bool; 8], [bool; 8])) {
-        let mv = match random_range(0, 4) {
-            0 => Move::UP,
-            1 => Move::DOWN,
-            2 => Move::LEFT,
-            3 => Move::RIGHT,
-            _ => panic!("rand error"),
+        let mut choices = vec![];
+
+        if neighborhood.0[1] {
+            choices.push(Move::UP);
+        }
+        if neighborhood.0[3] {
+            choices.push(Move::LEFT);
+        }
+        if neighborhood.0[4] {
+            choices.push(Move::RIGHT);
+        }
+        if neighborhood.0[6] {
+            choices.push(Move::DOWN);
+        }
+
+        let mv = if choices.len() == 0 {
+            match random_range(0, 4) {
+                0 => Move::UP,
+                1 => Move::DOWN,
+                2 => Move::LEFT,
+                3 => Move::RIGHT,
+                _ => panic!("rand error"),
+            }
+        } else {
+            *rand::thread_rng().choose(&choices).unwrap()
         };
 
         self.next_move = Some(mv);

@@ -114,7 +114,7 @@ impl Field {
             let neigh = get_neighborhood(c.loc, self.size);
             // Borrow here because closure tries to borrow all of self otherwise
             let p = &self.patches;
-            let patches_vec: Vec<bool> = neigh.iter().map(|&idx| p[idx] > 0).collect();
+            let patches_vec: Vec<bool> = neigh.iter().map(|&idx| p[idx] == 0).collect();
             let mut patches = [false; 8];
             patches.copy_from_slice(&patches_vec[0..8]);
 
