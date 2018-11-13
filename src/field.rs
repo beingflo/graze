@@ -189,6 +189,10 @@ impl<T: Mover> Field<T> {
             c.set_loc(loc);
         }
         self.step = 0;
+
+        for p in self.patches.iter_mut() {
+            *p = 0;
+        }
     }
 }
 

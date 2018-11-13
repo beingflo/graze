@@ -15,8 +15,8 @@ impl Evolver {
     }
 
     pub fn evolve(&mut self) {
-        let g = 1000;
-        let n = 1000;
+        let g = 100;
+        let n = 100;
 
         for _ in 0..g {
             self.select(n);
