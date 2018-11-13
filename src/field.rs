@@ -104,19 +104,7 @@ impl Field {
         }
     }
 
-    pub fn step(&mut self, dt: f32) {
-        let step_frequency = 10;
-        let step_interval = 1.0 / step_frequency as f32;
-        let grass_regen = 50;
-
-        self.last_step += dt;
-
-        if self.last_step < step_interval {
-            return;
-        }
-        self.last_step = 0.0;
-
-        // Move cows
+    fn move_cows(&mut self) {
         for c in &mut self.cows {
             c.compute_move();
         }
@@ -124,9 +112,10 @@ impl Field {
         for c in &mut self.cows {
             move_cow(c, self.size);
         }
+    }
 
-        // Eat grass
-        // Randomize eating if two cows occupy the same spot
+    fn eat(&mut self) {
+        let grass_regen = 50;
         thread_rng().shuffle(&mut self.cows);
 
         for c in self.cows.iter_mut() {
@@ -135,21 +124,40 @@ impl Field {
                 self.patches[c.loc] = grass_regen;
             }
         }
+    }
 
-        // Recover grass
+    fn recover_grass(&mut self) {
         for p in self.patches.iter_mut() {
             if *p > 0 {
                 *p -= 1;
             }
         }
+    }
 
-        // Print statistics
-        self.step += 1;
+    fn print_statistics(&mut self) {
         let (best, worst, av) = self.statistics();
 
         println!("Step: {}\nBest score: {}\nAverage score: {}\nWorst score: {}\n", self.step, best, av, worst);
     }
 
+    pub fn step(&mut self, dt: f32) {
+        let step_frequency = 10;
+        let step_interval = 1.0 / step_frequency as f32;
+
+        self.last_step += dt;
+
+        if self.last_step < step_interval {
+            return;
+        }
+        self.last_step = 0.0;
+
+        self.step += 1;
+
+        self.move_cows();
+        self.eat();
+        self.recover_grass();
+        self.print_statistics();
+    }
 }
 
 fn move_cow(cow: &mut Cow, size: usize) {
