@@ -20,7 +20,7 @@ impl Cow {
         Self { loc: loc, score: 0, next_move: None, id: id }
     }
 
-    pub fn compute_move(&mut self) {
+    pub fn compute_move(&mut self, neighborhood: ([bool; 8], [bool; 8])) {
         let mv = match random_range(0, 4) {
             0 => Move::UP,
             1 => Move::DOWN,

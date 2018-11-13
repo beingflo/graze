@@ -105,8 +105,24 @@ impl Field {
     }
 
     fn move_cows(&mut self) {
+        let mut cow_pos = vec![0; self.size*self.size];
+        for c in &self.cows {
+            cow_pos[c.loc] += 1;
+        }
+
         for c in &mut self.cows {
-            c.compute_move();
+            let neigh = get_neighborhood(c.loc, self.size);
+            // Borrow here because closure tries to borrow all of self otherwise
+            let p = &self.patches;
+            let patches_vec: Vec<bool> = neigh.iter().map(|&idx| p[idx] > 0).collect();
+            let mut patches = [false; 8];
+            patches.copy_from_slice(&patches_vec[0..8]);
+
+            let cows_vec: Vec<bool> = neigh.iter().map(|&idx| cow_pos[idx] > 0).collect();
+            let mut cows = [false; 8];
+            cows.copy_from_slice(&cows_vec[0..8]);
+
+            c.compute_move((patches, cows));
         }
 
         for c in &mut self.cows {
@@ -171,4 +187,29 @@ fn move_cow(cow: &mut Cow, size: usize) {
     }
 
     cow.loc = y * size + x;
+}
+
+fn get_neighborhood(loc: usize, size: usize) -> [usize; 8] {
+    let (x, y) = (loc % size, loc / size);
+
+    let mut neigh = [0; 8];
+
+    let x0 = if x == 0 { size - 1 } else { x - 1 };
+    let x1 = x;
+    let x2 = if x == size - 1 { 0 } else { x + 1 };
+
+    let y0 = if y == size - 1 { 0 } else { y + 1 };
+    let y1 = y;
+    let y2 = if y == 0 { size - 1 } else { y - 1 };
+
+    neigh[0] = y0 * size + x0;
+    neigh[1] = y0 * size + x1;
+    neigh[2] = y0 * size + x2;
+    neigh[3] = y1 * size + x0;
+    neigh[4] = y1 * size + x2;
+    neigh[5] = y2 * size + x0;
+    neigh[6] = y2 * size + x1;
+    neigh[7] = y2 * size + x2;
+
+    neigh
 }
