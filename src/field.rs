@@ -5,9 +5,10 @@ use rand::{thread_rng, Rng};
 
 use cow::Cow;
 use cow::Move;
+use traits::Mover;
 
-pub struct Field {
-    cows: Vec<Cow>,
+pub struct Field<T: Mover> {
+    cows: Vec<T>,
     patches: Vec<u32>,
 
     size: usize,
@@ -22,7 +23,7 @@ pub struct Field {
     id_gen: usize,
 }
 
-impl Field {
+impl<T: Mover> Field<T> {
     pub fn new(width: f32, height: f32, size: usize) -> Self {
         Self { cows: Vec::new(), patches: vec![0; size*size], size: size, width: width, height: height, freeze: false, last_step: 0.0, step: 0, best: 0, id_gen: 0 }
     }
@@ -44,25 +45,25 @@ impl Field {
     }
 
     pub fn add_cow(&mut self, loc: usize) {
-        self.cows.push(Cow::new(loc, self.id_gen));
+        self.cows.push(T::new(loc, self.id_gen));
         self.id_gen += 1;
     }
 
     pub fn statistics(&mut self) -> (usize, usize, f32) {
         let mut sum = 0;
         let mut best = 0;
-        let mut worst = self.cows[0].score;
+        let mut worst = self.cows[0].score();
 
         for c in self.cows.iter() {
-            if c.score > best {
-                best = c.score;
-                self.best = c.id;
+            if c.score() > best {
+                best = c.score();
+                self.best = c.id();
             }
-            if c.score < worst {
-                worst = c.score;
+            if c.score() < worst {
+                worst = c.score();
             }
 
-            sum += c.score;
+            sum += c.score();
         }
 
         let av = sum as f32 / self.cows.len() as f32;
@@ -90,13 +91,13 @@ impl Field {
 
         for c in self.cows.iter() {
             let radius = 5.0;
-            let (x,y) = (c.loc % self.size, c.loc / self.size);
+            let (x,y) = (c.loc() % self.size, c.loc() / self.size);
 
             let x = ((x as f32 + 0.5) / self.size as f32) * self.width - 0.5 * self.width;
             let y = ((y as f32 + 0.5) / self.size as f32) * self.height - 0.5 * self.height;
 
             let mut color = BLACK;
-            if c.id == self.best {
+            if c.id() == self.best {
                 color = WHITE;
             }
 
@@ -107,11 +108,11 @@ impl Field {
     fn move_cows(&mut self) {
         let mut cow_pos = vec![0; self.size*self.size];
         for c in &self.cows {
-            cow_pos[c.loc] += 1;
+            cow_pos[c.loc()] += 1;
         }
 
         for c in &mut self.cows {
-            let neigh = get_neighborhood(c.loc, self.size);
+            let neigh = get_neighborhood(c.loc(), self.size);
             // Borrow here because closure tries to borrow all of self otherwise
             let p = &self.patches;
             let patches_vec: Vec<bool> = neigh.iter().map(|&idx| p[idx] == 0).collect();
@@ -135,9 +136,9 @@ impl Field {
         thread_rng().shuffle(&mut self.cows);
 
         for c in self.cows.iter_mut() {
-            if self.patches[c.loc] == 0 {
-                c.score += 1;
-                self.patches[c.loc] = grass_regen;
+            if self.patches[c.loc()] == 0 {
+                c.inc_score();
+                self.patches[c.loc()] = grass_regen;
             }
         }
     }
@@ -176,8 +177,8 @@ impl Field {
     }
 }
 
-fn move_cow(cow: &mut Cow, size: usize) {
-    let (mut x, mut y) = (cow.loc % size, cow.loc / size);
+fn move_cow<T: Mover>(cow: &mut T, size: usize) {
+    let (mut x, mut y) = (cow.loc() % size, cow.loc() / size);
 
     match cow.get_move() {
         Move::UP => if y == size - 1 { y = 0 } else { y += 1 },
@@ -186,7 +187,7 @@ fn move_cow(cow: &mut Cow, size: usize) {
         Move::RIGHT => if x == size - 1 { x = 0 } else { x += 1 },
     }
 
-    cow.loc = y * size + x;
+    cow.set_loc(y * size + x);
 }
 
 fn get_neighborhood(loc: usize, size: usize) -> [usize; 8] {

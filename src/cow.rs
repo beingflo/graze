@@ -1,6 +1,8 @@
 use nannou::prelude::*;
 use rand::Rng;
 
+use traits::Mover;
+
 #[derive(Copy, Clone, Debug)]
 pub enum Move {
     UP,
@@ -16,12 +18,13 @@ pub struct Cow {
     pub id: usize,
 }
 
-impl Cow {
-    pub fn new(loc: usize, id: usize) -> Self {
+// Baseline cow
+impl Mover for Cow {
+    fn new(loc: usize, id: usize) -> Self {
         Self { loc: loc, score: 0, next_move: None, id: id }
     }
 
-    pub fn compute_move(&mut self, neighborhood: ([bool; 8], [bool; 8])) {
+    fn compute_move(&mut self, neighborhood: ([bool; 8], [bool; 8])) {
         let mut choices = vec![];
 
         if neighborhood.0[1] {
@@ -52,7 +55,27 @@ impl Cow {
         self.next_move = Some(mv);
     }
 
-    pub fn get_move(&self) -> Move {
+    fn get_move(&self) -> Move {
         self.next_move.unwrap()
+    }
+
+    fn loc(&self) -> usize {
+        self.loc
+    }
+
+    fn set_loc(&mut self, loc: usize) {
+        self.loc = loc;
+    }
+
+    fn score(&self) -> usize {
+        self.score
+    }
+
+    fn inc_score(&mut self) {
+        self.score += 1;
+    }
+
+    fn id(&self) -> usize {
+        self.id
     }
 }

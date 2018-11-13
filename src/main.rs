@@ -3,12 +3,15 @@ extern crate rand;
 
 mod field;
 mod cow;
+mod evolution;
 mod ui;
+mod traits;
 
 use nannou::prelude::*;
 use nannou::event::SimpleWindowEvent;
 use ui::UserInterface;
 use field::Field;
+use cow::Cow;
 
 
 fn main() {
@@ -16,7 +19,7 @@ fn main() {
 }
 
 struct Model {
-    field: Field,
+    field: Field<Cow>,
     ui: UserInterface,
 }
 
