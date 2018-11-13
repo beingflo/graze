@@ -2,7 +2,7 @@
 
 Evolutionary grazing strategies
 
-![screenshot](assets/gravity.png)
+![screenshot](assets/screenshot.png)
 
 ### Running
 Execute
