@@ -9,5 +9,6 @@ pub trait Mover {
     fn set_loc(&mut self, loc: usize);
     fn score(&self) -> usize;
     fn inc_score(&mut self);
+    fn reset_score(&mut self);
     fn id(&self) -> usize;
 }

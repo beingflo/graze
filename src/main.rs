@@ -12,7 +12,7 @@ use nannou::event::SimpleWindowEvent;
 use ui::UserInterface;
 use field::Field;
 use cow::Cow;
-
+use evolution::Evolver;
 
 fn main() {
     nannou::app(model, event, view).run();
@@ -20,6 +20,7 @@ fn main() {
 
 struct Model {
     field: Field<Cow>,
+    evolver: Evolver,
     ui: UserInterface,
 }
 
@@ -34,7 +35,12 @@ fn model(app: &App) -> Model {
     let mut field = Field::new(width, height, 50);
     field.init(10);
 
-    Model { field: field, ui: ui }
+    let mut evolver = Evolver::new(width, height, 50);
+    evolver.field.init(10);
+
+    evolver.evolve();
+
+    Model { field: field, evolver: evolver, ui: ui }
 }
 
 fn event(_: &App, mut model: Model, event: Event) -> Model {
@@ -42,7 +48,8 @@ fn event(_: &App, mut model: Model, event: Event) -> Model {
         Event::Update(update) => {
             let dt = update.since_last.secs() as f32;
 
-            model.field.step(dt);
+            //model.field.step(dt);
+            model.evolver.step(dt);
             model.ui.update(dt);
         },
 
@@ -63,7 +70,8 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
     let draw = app.draw();
     draw.background().color(WHITE);
 
-    model.field.draw(&draw);
+    //model.field.draw(&draw);
+    model.evolver.field.draw(&draw);
 
     draw.to_frame(app, &frame).unwrap();
     model.ui.ui.draw_to_frame(app, &frame).unwrap();

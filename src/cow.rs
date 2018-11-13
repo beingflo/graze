@@ -75,6 +75,10 @@ impl Mover for Cow {
         self.score += 1;
     }
 
+    fn reset_score(&mut self) {
+        self.score = 0;
+    }
+
     fn id(&self) -> usize {
         self.id
     }

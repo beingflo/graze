@@ -3,7 +3,6 @@ use nannou::draw::Draw;
 
 use rand::{thread_rng, Rng};
 
-use cow::Cow;
 use cow::Move;
 use traits::Mover;
 
@@ -151,7 +150,7 @@ impl<T: Mover> Field<T> {
         }
     }
 
-    fn print_statistics(&mut self) {
+    pub fn print_statistics(&mut self) {
         let (best, worst, av) = self.statistics();
 
         println!("Step: {}\nBest score: {}\nAverage score: {}\nWorst score: {}\n", self.step, best, av, worst);
@@ -177,11 +176,19 @@ impl<T: Mover> Field<T> {
         self.move_cows();
         self.eat();
         self.recover_grass();
-        self.print_statistics();
     }
 
     pub fn cows(&mut self) -> &mut Vec<T> {
         &mut self.cows
+    }
+
+    pub fn reset(&mut self) {
+        for c in &mut self.cows {
+            c.reset_score();
+            let loc = random_range(0, self.size*self.size);
+            c.set_loc(loc);
+        }
+        self.step = 0;
     }
 }
 
