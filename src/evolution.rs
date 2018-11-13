@@ -33,12 +33,23 @@ impl Evolver {
             self.step(1.0);
         }
 
-        self.field.cows().sort_by(|a, b| b.score.cmp(&a.score));
+        let cows = self.field.cows();
 
+        cows.sort_by(|a, b| b.score.cmp(&a.score));
+
+        let mid = cows.len() / 2;
+
+        for i in mid..cows.len() {
+            let a = random_range(0, mid);
+            let b = random_range(0, mid);
+
+            for x in 0..4 {
+                cows[i].move_prob[x] = (cows[a].move_prob[x] + cows[b].move_prob[x]) / 2.0;
+            }
+        }
     }
 
     fn mutate(&mut self) {
-
     }
 
     pub fn step(&mut self, dt: f32) {
